@@ -17,19 +17,24 @@ type CaseController interface{
 	PutCase(c *gin.Context)
 }
 
-type controller struct{}
-
-var (
-	caseService service.CaseService 
-)
-
-func NewCaseCrontroller(service service.CaseService) CaseController{
-	caseService = service
-	return &controller{}
+type controller struct{ 
+	service service.CaseService
 }
-func (*controller) GetCases(c *gin.Context) {
 
-	cases, err := caseService.FindAll()
+//This setup the service
+func NewCaseCrontroller(service service.CaseService) CaseController{
+	return &controller{
+		service,
+	}
+}
+
+// GET /cases
+// Get a cases
+//Returns a status code or an error
+func (ct *controller) GetCases(c *gin.Context) {
+
+	cases, err := ct.service.FindAll()
+
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -37,9 +42,9 @@ func (*controller) GetCases(c *gin.Context) {
 	c.JSON(http.StatusOK, cases)
 }
 
-// DELETE /books/:id
+// DELETE /case/:id
 // Deleting a case
-func (*controller) DeleteCase(c *gin.Context) {
+func (ct *controller) DeleteCase(c *gin.Context) {
 
 	//Validating input
 	id, err := strconv.Atoi(c.Param("id"))
@@ -47,7 +52,7 @@ func (*controller) DeleteCase(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	err1 := caseService.Delete(id)
+	err1 := ct.service.Delete(id)
 	if err1 != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err1.Error()})
 		return
@@ -55,7 +60,9 @@ func (*controller) DeleteCase(c *gin.Context) {
 	c.JSON(http.StatusOK, "item deleted")
 }
 
-func (*controller) GetCase(c *gin.Context) {
+// GET /case/:id
+// Getting a single case
+func (ct *controller) GetCase(c *gin.Context) {
 
 	id := c.Param("id")
 	id2, err := strconv.Atoi(id)
@@ -63,7 +70,7 @@ func (*controller) GetCase(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	cases, err2 := caseService.FindById(id2)
+	cases, err2 := ct.service.FindById(id2)
 	if err2 != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err2.Error()})
 		return
@@ -71,21 +78,17 @@ func (*controller) GetCase(c *gin.Context) {
 
 	c.JSON(http.StatusOK, cases)
 }
-
-func (*controller) PostCase(c *gin.Context) {
+//POST /case
+//
+func (ct *controller) PostCase(c *gin.Context) {
 
 	var payload entity.Case
 	if e := c.ShouldBindJSON(&payload); e != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": e.Error()})
 		return
 	}
-	//validate the id
-	if payload.ID != 0 {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "New case must not includean ID"})
-		return
-	}
-
-	cases, err := caseService.Create(&payload)
+	
+	cases, err := ct.service.Create(&payload)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -93,8 +96,9 @@ func (*controller) PostCase(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"message": "Case Added", "data": cases})
 }
-
-func (*controller) PutCase(c *gin.Context) {
+//Updating a case
+// endPoint /cases
+func (ct *controller) PutCase(c *gin.Context) {
 
 	var payload entity.Case
 	if e := c.ShouldBindJSON(&payload); e != nil {
@@ -102,7 +106,7 @@ func (*controller) PutCase(c *gin.Context) {
 		return
 	}
 
-	_, err := caseService.Update(&payload)
+	_, err := ct.service.Update(&payload)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

@@ -1,7 +1,6 @@
-package main
+package router
 
 import (
-	"log"
 	"project-cases/controller"
 	"project-cases/repository"
 	"project-cases/service"
@@ -11,13 +10,12 @@ import (
 
 var (
 	CaseRepository repository.CaseRepository = repository.NewMemoryRepository()
-	caseService service.CaseService = service.NewCaseService(CaseRepository)
+	caseService    service.CaseService       = service.NewCaseService(CaseRepository)
 	caseController controller.CaseController = controller.NewCaseCrontroller(caseService)
 )
 
-func main() {
+func SetupRouter() *gin.Engine {
 
-	var address = ":3001"
 	r := gin.Default()
 
 	r.GET("/cases", caseController.GetCases)
@@ -26,6 +24,5 @@ func main() {
 	r.PUT("/cases", caseController.PutCase)
 	r.DELETE("/cases/:id", caseController.DeleteCase)
 
-	//_ = utility.GetConnection()
-	log.Fatal(r.Run(address))
+	return r
 }
