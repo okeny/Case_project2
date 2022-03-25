@@ -20,25 +20,25 @@ var (
 
 func TestGetCases(t *testing.T) {
 	router := testsetup.SetupTesting()
-
+	// controller-  with mocks -
+	router.GET("/cases", caseController.GetCases)
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "/cases/1", nil)
+	req, _ := http.NewRequest("GET", "/cases", nil)
 	router.ServeHTTP(w, req)
-
+	// assert expectations
 	assert.Equal(t, 200, w.Code)
-	assert.Equal(t, "item deleted", w.Body.String())
 }
 
 func TestDeleteCase(t *testing.T) {
 
 	router := testsetup.SetupTesting()
+	router.DELETE("/cases/1", caseController.DeleteCase)
 
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest("DELETE", "/cases/1", nil)
 	router.ServeHTTP(w, req)
-
 	assert.Equal(t, 200, w.Code)
-	assert.Equal(t, "item deleted", w.Body.String())
+
 }
 
 func TestGetCase(t *testing.T) {

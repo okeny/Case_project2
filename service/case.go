@@ -2,7 +2,6 @@ package service
 
 import (
 	"errors"
-	"math/rand"
 	"project-cases/entity"
 	"project-cases/repository"
 )
@@ -16,9 +15,9 @@ type CaseService interface {
 	Delete(id int) error
 }
 
-type service struct{ 
+type service struct {
 	repo repository.CaseRepository
- }
+}
 
 func NewCaseService(rep repository.CaseRepository) CaseService {
 	return &service{
@@ -43,7 +42,7 @@ func (*service) Validate(Case *entity.Case) error {
 }
 
 func (s *service) Create(Case *entity.Case) (*entity.Case, error) {
-	Case.ID = int(rand.Int63())
+
 	return s.repo.Save(Case)
 }
 

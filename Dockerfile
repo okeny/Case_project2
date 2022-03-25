@@ -1,4 +1,4 @@
-FROM golang:latest
+FROM golang:1.18
 
 LABEL maintainer="okeny <okeny.patrick@andela.com>"
 

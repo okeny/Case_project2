@@ -2,6 +2,7 @@ package repository
 
 import (
 	"fmt"
+	"math/rand"
 	"project-cases/entity"
 )
 
@@ -16,6 +17,7 @@ func NewMemoryRepository() CaseRepository {
 func (*repo) Save(Case *entity.Case) (*entity.Case, error) {
 
 	//Add the case to the collection
+	Case.ID = int(rand.Int63())
 	cases = append(cases, *Case)
 	return Case, nil
 }
